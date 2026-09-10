@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a1a2e">
+<title>私密群聊</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ==================== 登录页 ==================== -->
+<div id="login-view" class="view active">
+  <div class="login-container">
+    <div class="login-logo">🔒</div>
+    <h1 class="login-title">私密群聊</h1>
+    <p class="login-subtitle">12人端到端加密 · 每人独立密钥分区</p>
+    <div class="login-form">
+      <div class="input-group">
+        <label>账号</label>
+        <input type="text" id="login-username" autocomplete="off" placeholder="输入账号">
+      </div>
+      <div class="input-group">
+        <label>密码</label>
+        <input type="password" id="login-password" placeholder="输入密码">
+      </div>
+      <div class="input-group">
+        <label>验证码</label>
+        <div class="captcha-row">
+          <input type="text" id="login-captcha" placeholder="计算结果" inputmode="numeric">
+          <span class="captcha-question" id="captcha-question">加载中...</span>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-login">登 录</button>
+      <p class="login-error" id="login-error"></p>
+    </div>
+    <div class="register-section" id="register-section">
+      <hr class="divider">
+      <p class="register-hint">首次使用? 创建账号 (最多12人)</p>
+      <div class="input-group">
+        <input type="text" id="reg-username" placeholder="账号">
+      </div>
+      <div class="input-group">
+        <input type="text" id="reg-displayname" placeholder="显示昵称">
+      </div>
+      <div class="input-group">
+        <input type="password" id="reg-password" placeholder="密码">
+      </div>
+      <div class="input-group">
+        <select id="reg-role">
+          <option value="admin">管理员 (你)</option>
+          <option value="client">普通成员</option>
+        </select>
+      </div>
+      <button class="btn-secondary" id="btn-register">创建账号</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 客户端密钥配置页 ==================== -->
+<div id="keyexchange-view" class="view">
+  <div class="setup-container">
+    <h2>🔑 密钥配置</h2>
+    <p class="setup-desc">首次登录需要配置解密密钥。请输入管理员通过可信平台发送给你的一次性密钥(OTP)和密钥包。</p>
+    <div class="input-group">
+      <label>一次性密钥 (OTP)</label>
+      <input type="text" id="exchange-otp" placeholder="粘贴OTP">
+    </div>
+    <div class="input-group">
+      <label>密钥包 (管理员提供的加密数据包)</label>
+      <textarea id="exchange-bundle" rows="4" placeholder="粘贴加密密钥包 (JSON格式)"></textarea>
+    </div>
+    <button class="btn-primary" id="btn-exchange">解密并配置</button>
+    <p class="login-error" id="exchange-error"></p>
+    <p class="setup-desc" id="exchange-success" style="display:none;color:#00b894">✅ 密钥配置成功! 正在进入聊天...</p>
+  </div>
+</div>
+
+<!-- ==================== 聊天主页 ==================== -->
+<div id="chat-view" class="view">
+  <header class="chat-header">
+    <div class="header-info">
+      <span class="header-name" id="chat-group-name">私密群聊</span>
+      <span class="header-status" id="chat-status">在线</span>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="btn-users" title="成员管理">👥</button>
+      <button class="icon-btn" id="btn-call" title="通话">📞</button>
+      <button class="icon-btn" id="btn-history" title="历史记录">📋</button>
+      <button class="icon-btn" id="btn-logout" title="退出">⏻</button>
+    </div>
+  </header>
+
+  <div class="messages-container" id="messages-container">
+    <div class="welcome-msg">
+      <p>🔒 消息经群组AES密钥加密</p>
+      <p class="welcome-sub">群组密钥由12层嵌套RSA保护, 每人独立密钥分区</p>
+    </div>
+  </div>
+
+  <footer class="chat-input-area">
+    <div class="input-tools">
+      <button class="tool-btn" id="btn-emoji" title="表情">😊</button>
+      <button class="tool-btn" id="btn-image" title="图片">🖼️</button>
+      <input type="file" id="image-input" accept="image/*" multiple style="display:none">
+      <span class="tool-status" id="encrypt-status"></span>
+    </div>
+    <div class="input-row">
+      <textarea id="message-input" placeholder="输入消息..." rows="1"></textarea>
+      <button class="send-btn" id="btn-send">➤</button>
+    </div>
+    <div class="emoji-panel" id="emoji-panel" style="display:none">
+      <div class="emoji-grid">
+        <span>😀</span><span>😂</span><span>🥰</span><span>😎</span><span>🤔</span>
+        <span>😴</span><span>😭</span><span>😡</span><span>👍</span><span>👎</span>
+        <span>❤️</span><span>🔥</span><span>🎉</span><span>💯</span><span>✨</span>
+        <span>🙏</span><span>👏</span><span>💪</span><span>🤝</span><span>👋</span>
+        <span>😈</span><span>👻</span><span>🤖</span><span>💀</span><span>🎭</span>
+        <span>☕</span><span>🍺</span><span>🎮</span><span>📱</span><span>💻</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- ==================== 成员管理面板 (管理员) ==================== -->
+<div id="users-panel" class="side-panel">
+  <div class="panel-header">
+    <h3>👥 成员管理</h3>
+    <button class="icon-btn" id="btn-close-users">✕</button>
+  </div>
+  <div class="panel-actions">
+    <button class="btn-small" id="btn-rotate-key">🔄 轮换群组密钥</button>
+  </div>
+  <div class="user-list" id="user-list">
+    <p class="panel-empty">加载中...</p>
+  </div>
+</div>
+
+<!-- ==================== 密钥配置弹窗 (管理员为成员配置) ==================== -->
+<div id="keysetup-modal" class="modal-overlay" style="display:none">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 id="keysetup-title">为成员配置密钥</h3>
+      <button class="icon-btn" id="btn-close-keysetup">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="setup-steps">
+        <div class="step" id="ks-step-1"><div class="step-num">1</div><div class="step-text">生成48对RSA密钥...</div></div>
+        <div class="step" id="ks-step-2"><div class="step-num">2</div><div class="step-text">上传公钥并封装群组密钥...</div></div>
+        <div class="step" id="ks-step-3"><div class="step-num">3</div><div class="step-text">生成OTP和密钥包...</div></div>
+      </div>
+      <div class="setup-progress" id="ks-progress" style="display:none">
+        <div class="progress-bar"><div class="progress-fill" id="ks-progress-fill"></div></div>
+        <p class="progress-text" id="ks-progress-text">准备中...</p>
+      </div>
+      <div class="setup-result" id="ks-result" style="display:none">
+        <div class="otp-display">
+          <label>⚠️ OTP (4小时后自毁)</label>
+          <div class="otp-box" id="ks-otp">--</div>
+        </div>
+        <div class="otp-display">
+          <label>📦 密钥包 (发给该成员)</label>
+          <div class="otp-box" id="ks-bundle" style="font-size:11px;max-height:80px;overflow-y:auto">--</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn-secondary" id="ks-copy-otp" style="flex:1;margin:0">复制OTP</button>
+          <button class="btn-secondary" id="ks-copy-bundle" style="flex:1;margin:0">复制密钥包</button>
+        </div>
+      </div>
+      <button class="btn-primary" id="ks-start">开始配置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 通话对象选择 ==================== -->
+<div id="call-select-modal" class="modal-overlay" style="display:none">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3>选择通话对象</h3>
+      <button class="icon-btn" id="btn-close-call-select">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="call-user-list" class="user-list">
+        <p class="panel-empty">加载中...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 历史记录面板 ==================== -->
+<div id="history-panel" class="side-panel">
+  <div class="panel-header">
+    <h3>📋 全部历史记录</h3>
+    <button class="icon-btn" id="btn-close-history">✕</button>
+  </div>
+  <div class="panel-actions">
+    <select id="share-target" class="btn-small" style="flex:1">
+      <option value="">分享给...</option>
+    </select>
+    <button class="btn-small" id="btn-select-all">全选</button>
+    <button class="btn-small btn-share" id="btn-share-selected">分享</button>
+  </div>
+  <div class="history-list" id="history-list">
+    <p class="panel-empty">加载中...</p>
+  </div>
+</div>
+<div id="panel-overlay" class="panel-overlay" style="display:none"></div>
+
+<!-- ==================== 通话弹窗 ==================== -->
+<div id="call-overlay" class="call-overlay" style="display:none">
+  <div class="call-container">
+    <div class="call-peer" id="call-peer-name">对方</div>
+    <div class="call-status" id="call-status">正在呼叫...</div>
+    <div class="call-video" id="call-video-container" style="display:none">
+      <video id="remote-video" autoplay playsinline></video>
+      <video id="local-video" autoplay playsinline muted class="local-preview"></video>
+    </div>
+    <div class="call-audio-visual" id="call-audio-visual">
+      <div class="audio-ring"></div>
+    </div>
+    <div class="call-controls">
+      <button class="call-btn call-accept" id="btn-accept-call" style="display:none">📞 接听</button>
+      <button class="call-btn call-hangup" id="btn-hangup">📵 挂断</button>
+      <button class="call-btn call-toggle" id="btn-mute">🎤 静音</button>
+    </div>
+  </div>
+</div>
+
+<div id="incoming-call" class="incoming-call" style="display:none">
+  <div class="incoming-content">
+    <p class="incoming-title" id="incoming-title">来电...</p>
+    <p class="incoming-type" id="incoming-type">语音通话</p>
+    <div class="incoming-btns">
+      <button class="call-btn call-hangup" id="btn-reject-call">拒绝</button>
+      <button class="call-btn call-accept" id="btn-accept-incoming">接听</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="crypto.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
